@@ -30,3 +30,16 @@ def test_detail_includes_steps_and_404():
     assert r2.json()["status"] == "running"
     r3 = client.get("/api/runs/does_not_exist")
     assert r3.status_code == 404
+
+
+def test_date_only_range_behaves():
+    # date-only bounds (what <input type="date"> sends) must not 500:
+    # from-bound is start of day, to-bound is end of day, both UTC.
+    r = client.get("/api/runs", params={"started_from": "2026-08-01", "started_to": "2026-08-10", "page_size": 100})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["total"] == 38
+    for item in body["items"]:
+        assert "2026-08-01" <= item["started_at"][:10] <= "2026-08-10"
+    bad = client.get("/api/runs", params={"started_from": "garbage"})
+    assert bad.status_code == 422

@@ -47,9 +47,10 @@ export default async function DashboardPage() {
   let stats: Awaited<ReturnType<typeof getStats>>;
   try {
     stats = await getStats();
-  } catch {
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
     throw new Error(
-      "Could not reach the backend. Is FastAPI running on :8000?"
+      `Could not load stats (${msg}). Is FastAPI running on :8000?`
     );
   }
 

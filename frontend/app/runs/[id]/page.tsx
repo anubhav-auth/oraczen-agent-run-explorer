@@ -17,7 +17,8 @@ export default async function RunDetailPage({
     run = await getRun(id);
   } catch (e) {
     if (e instanceof NotFoundError) notFound();
-    throw new Error("Could not reach the backend. Is FastAPI running on :8000?");
+    const msg = e instanceof Error ? e.message : String(e);
+    throw new Error(`Could not load run (${msg}). Is FastAPI running on :8000?`);
   }
 
     const runError = run.error as {
