@@ -1,6 +1,7 @@
 export type RunsFilter = {
   status?: string[];
   agent?: string[];
+  tool?: string[];
   started_from?: string;
   started_to?: string;
   q?: string;
@@ -16,6 +17,9 @@ export function buildRunsQuery(filters: RunsFilter): string {
   }
   for (const a of filters.agent ?? []) {
     if (a) params.append("agent", a);
+  }
+  for (const t of filters.tool ?? []) {
+    if (t) params.append("tool", t);
   }
   if (filters.started_from) params.set("started_from", filters.started_from);
   if (filters.started_to) params.set("started_to", filters.started_to);
