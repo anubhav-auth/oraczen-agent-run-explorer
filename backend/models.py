@@ -36,3 +36,19 @@ class RunsPage(BaseModel):
     total: int
     page: int
     page_size: int
+
+
+class Stats(BaseModel):
+    total: int
+    by_status: dict
+    by_agent: dict
+    success_rate: float
+    success_by_agent: dict
+    median_duration_ms: float | None
+    p95_duration_ms: int | float | None
+    total_cost: float
+    cost_by_agent: dict
+    unpriced_count: int
+    unpriced_by_agent: dict
+    runs_per_day: list
+    meta: dict

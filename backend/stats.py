@@ -9,14 +9,15 @@ def _pct_nearest_rank(sorted_vals: list, p: float):
     idx = math.ceil(p / 100 * len(sorted_vals)) - 1
     return sorted_vals[max(0, min(idx, len(sorted_vals) - 1))]
 def compute_stats(runs, meta: dict) -> dict:
+    if not runs:
+        return {"total": 0, "by_status": {}, "by_agent": {}, "success_rate": 0.0, "success_by_agent": {}, "median_duration_ms": None, "p95_duration_ms": None, "total_cost": 0.0, "cost_by_agent": {}, "unpriced_count": 0, "unpriced_by_agent": {}, "runs_per_day": [], "meta": meta}
     total = len(runs)
     by_status = dict(Counter(r.status for r in runs))
     by_agent = dict(Counter(r.agent for r in runs))
     eligible = [r for r in runs if r.status != "running"]
     succ = sum(1 for r in eligible if r.status == "succeeded")
     success_rate = succ / len(eligible) if eligible else 0.0
-    from collections import defaultdict as dd
-    per_agent: dict = dd(list)
+    per_agent: dict = defaultdict(list)
     for r in runs:
         per_agent[r.agent].append(r)
     success_by_agent = {}

@@ -2,6 +2,8 @@ from __future__ import annotations
 import asyncio
 import os
 from collections import Counter
+from collections.abc import AsyncIterator
+from typing import Protocol
 def build_explain_text(run) -> str:
     tools = Counter(s.tool for s in run.steps)
     tool_str = ", ".join(f"{t} x{c}" for t, c in sorted(tools.items())) if tools else "no steps"
@@ -16,10 +18,20 @@ def build_explain_text(run) -> str:
             tail += "The run has no steps, so the error index points past the trace. "
         return base + tail
     return base + f"Status {run.status}. "
-class MockExplainProvider:
+class ExplainProvider(Protocol):
+    def stream(self, run) -> AsyncIterator[str]:
+        ...
+
+
+class MockExplainProvider(ExplainProvider):
     async def stream(self, run):
         text = build_explain_text(run)
-        delay = int(os.environ.get("EXPLAIN_DELAY_MS", "40")) / 1000
+        try:
+            delay_ms = int(os.environ.get("EXPLAIN_DELAY_MS", "40"))
+        except ValueError:
+            delay_ms = 40
+        delay_ms = max(0, min(delay_ms, 500))
+        delay = delay_ms / 1000
         for sent in [s.strip() for s in text.split(". ") if s.strip()]:
             yield sent + ". "
             await asyncio.sleep(delay)

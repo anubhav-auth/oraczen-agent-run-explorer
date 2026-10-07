@@ -3,8 +3,11 @@ import os
 from datetime import datetime
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from backend.loader import load_runs
-from backend.models import RunsPage, RunSummary, RunDetail
+from backend.models import RunsPage, RunSummary, RunDetail, Stats
+from backend.stats import compute_stats
+from backend.explain import MockExplainProvider
 RUNS_PATH = os.environ.get("RUNS_PATH", "data/runs.jsonl")
 FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:3000")
 app = FastAPI(title="Agent Run Explorer")
@@ -16,8 +19,11 @@ def _parse_dt(s: str | None) -> datetime | None:
         return None
     return datetime.fromisoformat(s.replace("Z", "+00:00"))
 def _filter(status, agent, started_from, started_to, q):
-    sf = _parse_dt(started_from)
-    st = _parse_dt(started_to)
+    try:
+        sf = _parse_dt(started_from)
+        st = _parse_dt(started_to)
+    except ValueError:
+        raise HTTPException(status_code=422, detail="invalid date format, expected ISO 8601")
     qn = q.strip().lower() if q else None
     out = []
     for r in _RUNS:
@@ -58,19 +64,18 @@ def get_run(run_id: str):
     run = _BY_ID.get(run_id)
     if run is None:
         raise HTTPException(status_code=404, detail=f"run {run_id} not found")
-    run.steps.sort(key=lambda s: s.index)
-    return run
-from backend.stats import compute_stats
-@app.get("/api/stats")
+    return RunDetail(**{**run.model_dump(), "steps": sorted(run.steps, key=lambda s: s.index)})
+
+
+@app.get("/api/stats", response_model=Stats)
 def get_stats():
     return compute_stats(_RUNS, _META)
-from fastapi.responses import StreamingResponse
-from backend.explain import MockExplainProvider
+
+
 @app.post("/api/runs/{run_id}/explain")
 async def explain_run(run_id: str):
     run = _BY_ID.get(run_id)
     if run is None:
-        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail=f"run {run_id} not found")
     provider = MockExplainProvider()
     return StreamingResponse(provider.stream(run), media_type="text/plain")
