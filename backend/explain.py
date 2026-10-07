@@ -7,7 +7,8 @@ from typing import Protocol
 def build_explain_text(run) -> str:
     tools = Counter(s.tool for s in run.steps)
     tool_str = ", ".join(f"{t} x{c}" for t, c in sorted(tools.items())) if tools else "no steps"
-    base = (f"Run {run.id} used agent {run.agent} ({run.model}) with prompt: {(run.prompt or '').strip()[:160]}. " f"It took {len(run.steps)} steps ({tool_str}), duration {run.duration_ms}ms, " f"tokens in={run.input_tokens} out={run.output_tokens}, cost {run.cost_usd}. ")
+    prompt = (run.prompt or "").strip()[:160].rstrip(".")
+    base = (f"Run {run.id} used agent {run.agent} ({run.model}) with prompt: {prompt}. " f"It took {len(run.steps)} steps ({tool_str}), duration {run.duration_ms}ms, " f"tokens in={run.input_tokens} out={run.output_tokens}, cost {run.cost_usd}. ")
     if run.error:
         e = run.error
         tail = f"Status {run.status}: {e.get('type')}: {e.get('message')} at step {e.get('step_index')}. "
