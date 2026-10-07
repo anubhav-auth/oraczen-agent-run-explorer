@@ -60,3 +60,7 @@ def get_run(run_id: str):
         raise HTTPException(status_code=404, detail=f"run {run_id} not found")
     run.steps.sort(key=lambda s: s.index)
     return run
+from backend.stats import compute_stats
+@app.get("/api/stats")
+def get_stats():
+    return compute_stats(_RUNS, _META)
