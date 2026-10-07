@@ -1,10 +1,10 @@
 from __future__ import annotations
 import os
 from datetime import datetime
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from backend.loader import load_runs
-from backend.models import RunsPage, RunSummary
+from backend.models import RunsPage, RunSummary, RunDetail
 RUNS_PATH = os.environ.get("RUNS_PATH", "data/runs.jsonl")
 FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:3000")
 app = FastAPI(title="Agent Run Explorer")
@@ -51,3 +51,12 @@ def list_runs(page: int = Query(default=1, ge=1), page_size: int = Query(default
     start = (page - 1) * page_size
     items = [RunSummary.model_validate(r.model_dump(exclude={"steps"})) for r in ordered[start:start + page_size]]
     return RunsPage(items=items, total=total, page=page, page_size=page_size)
+
+
+@app.get("/api/runs/{run_id}", response_model=RunDetail)
+def get_run(run_id: str):
+    run = _BY_ID.get(run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail=f"run {run_id} not found")
+    run.steps.sort(key=lambda s: s.index)
+    return run
