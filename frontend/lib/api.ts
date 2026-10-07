@@ -61,6 +61,8 @@ export interface Stats {
 export const API_URL =
   process.env.NEXT_PUBLIC_API_URL ?? process.env.API_URL ?? "http://localhost:8000";
 
+export class NotFoundError extends Error {}
+
 export async function getRuns(query: string): Promise<RunsPage> {
   const qs = query ? (query.startsWith("?") ? query : `?${query}`) : "";
   const res = await fetch(`${API_URL}/api/runs${qs}`, { cache: "no-store" });
@@ -70,7 +72,7 @@ export async function getRuns(query: string): Promise<RunsPage> {
 
 export async function getRun(id: string): Promise<RunDetail> {
   const res = await fetch(`${API_URL}/api/runs/${id}`, { cache: "no-store" });
-  if (res.status === 404) throw new Error("run not found");
+  if (res.status === 404) throw new NotFoundError(`run ${id} not found`);
   if (!res.ok) throw new Error(`failed to fetch run: ${res.status}`);
   return (await res.json()) as RunDetail;
 }

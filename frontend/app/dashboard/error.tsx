@@ -1,5 +1,5 @@
 "use client";
-export default function RunsError({ error, reset }: { error: Error; reset: () => void }) {
+export default function DashboardError({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div>
       <p role="alert">Something went wrong: {error.message}</p>

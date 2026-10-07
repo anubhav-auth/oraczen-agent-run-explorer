@@ -12,6 +12,11 @@ table.runs th,table.runs td{text-align:left;padding:0.6rem;border-bottom:1px sol
 .filters{display:flex;flex-wrap:wrap;gap:var(--space);align-items:end;}
 .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space);}
 .chart-scroll{overflow-x:auto;}
+.table-scroll{overflow-x:auto;}
+.skip{position:absolute;left:-9999px;}
+.skip:focus{left:0;position:static;}
+input[type="checkbox"]{width:1.25rem;height:1.25rem;}
+label{display:inline-flex;align-items:center;gap:0.4rem;}
 pre{white-space:pre-wrap;word-break:break-word;}
 details:target{outline:2px solid var(--accent);border-radius:var(--radius);}
 @media (max-width:720px){table.runs{display:none;}.cards{display:grid;gap:var(--space);}.card{border:1px solid var(--border);border-radius:var(--radius);padding:var(--space);}.stat-grid{grid-template-columns:repeat(2,1fr);}.filters{flex-direction:column;align-items:stretch;}}
