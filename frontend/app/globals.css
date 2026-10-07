@@ -34,7 +34,9 @@ table.runs tbody tr:nth-child(even){background:#fafafa;}
 .meta{display:grid;grid-template-columns:auto 1fr;gap:0.3rem 1rem;margin:var(--space) 0;}
 .meta dt{color:var(--muted);}
 .meta dd{margin:0;}
-.pager{display:flex;gap:1.5rem;margin:var(--space) 0;}
+.pager{display:flex;gap:1rem;margin:var(--space) 0;align-items:center;flex-wrap:wrap;}
+.pager a{display:inline-flex;align-items:center;}
+.page-current{font-weight:700;text-decoration:underline;}
 button{padding:0.5rem 1rem;border-radius:var(--radius);border:1px solid var(--border);background:#f5f5f5;cursor:pointer;}
 button[type="submit"]{background:var(--accent);border-color:var(--accent);color:#fff;}
 button:disabled{opacity:0.6;cursor:default;}
