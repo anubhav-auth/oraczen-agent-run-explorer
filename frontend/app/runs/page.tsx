@@ -16,8 +16,12 @@ export default async function RunsPage({ searchParams }: { searchParams: Promise
   const q = typeof sp.q === "string" ? sp.q : "";
   const started_from = typeof sp.started_from === "string" ? sp.started_from : "";
   const started_to = typeof sp.started_to === "string" ? sp.started_to : "";
-  const sort = typeof sp.sort === "string" ? sp.sort : "started_at";
-  const order = typeof sp.order === "string" ? sp.order : "desc";
+  const SORTS = ["started_at", "duration_ms", "cost_usd"];
+  const ORDERS = ["asc", "desc"];
+  const sortParam = typeof sp.sort === "string" ? sp.sort : "started_at";
+  const orderParam = typeof sp.order === "string" ? sp.order : "desc";
+  const sort = SORTS.includes(sortParam) ? sortParam : "started_at";
+  const order = ORDERS.includes(orderParam) ? orderParam : "desc";
   const page = Math.max(1, parseInt(typeof sp.page === "string" ? sp.page : "1", 10) || 1);
   const query = buildRunsQuery({ status, agent, started_from, started_to, q, sort, order, page: String(page) });
   let body: Awaited<ReturnType<typeof getRuns>>;
@@ -63,6 +67,7 @@ export default async function RunsPage({ searchParams }: { searchParams: Promise
         <p>No runs match these filters. Try clearing the search.</p>
       ) : (
         <>
+          <div className="table-scroll">
           <table className="runs">
             <thead><tr><th>ID</th><th>Agent</th><th>Status</th><th>Started</th><th>Duration</th><th>Cost</th></tr></thead>
             <tbody>
@@ -75,6 +80,7 @@ export default async function RunsPage({ searchParams }: { searchParams: Promise
               ))}
             </tbody>
           </table>
+          </div>
           <div className="cards">
             {body.items.map((r) => (
               <div className="card" key={r.id}>
@@ -84,7 +90,7 @@ export default async function RunsPage({ searchParams }: { searchParams: Promise
               </div>
             ))}
           </div>
-          <nav>
+          <nav aria-label="Runs pagination">
             {page > 1 && <Link href={mkHref(page - 1)}>← Prev</Link>}{" "}
             {(page * pageSize < body.total) && <Link href={mkHref(page + 1)}>Next →</Link>}
           </nav>

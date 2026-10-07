@@ -5,9 +5,11 @@ export const dynamic = "force-dynamic";
 function Bars({
   data,
   format,
+  label,
 }: {
   data: { label: string; value: number }[];
   format: (v: number) => string;
+  label: string;
 }) {
   const max = data.length > 0 ? Math.max(...data.map((d) => d.value)) : 0;
   const height = data.length * 26 + 10;
@@ -18,7 +20,9 @@ function Bars({
         width={600}
         style={{ maxWidth: "100%", height: "auto" }}
         role="img"
+        aria-label={label}
       >
+        <title>{label}</title>
         {data.map((d, i) => {
           const y = 10 + i * 26;
           const w = max > 0 ? (d.value / max) * 380 : 0;
@@ -97,14 +101,15 @@ export default async function DashboardPage() {
         {stats.unpriced_count} unpriced runs.
       </p>
       <h2>Runs per day</h2>
-      <Bars data={runsPerDay} format={(v) => `${v}`} />
+      <Bars data={runsPerDay} format={(v) => `${v}`} label="Runs per day" />
       <h2>Success rate by agent</h2>
       <Bars
         data={successByAgent}
         format={(v) => `${(v * 100).toFixed(1)}%`}
+        label="Success rate by agent"
       />
       <h2>Cost by agent</h2>
-      <Bars data={costByAgent} format={(v) => `$${v.toFixed(2)}`} />
+      <Bars data={costByAgent} format={(v) => `$${v.toFixed(2)}`} label="Cost by agent" />
     </div>
   );
 }

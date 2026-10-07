@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getRun } from "../../../lib/api";
+import { getRun, NotFoundError } from "../../../lib/api";
 import ExplainButton from "./ExplainButton";
 
 export const dynamic = "force-dynamic";
@@ -12,20 +12,12 @@ export default async function RunDetailPage({
 }) {
   const { id } = await params;
 
-  let run;
+  let run: Awaited<ReturnType<typeof getRun>>;
   try {
     run = await getRun(id);
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    if (!msg.includes("not found")) {
-      throw new Error(
-        "Could not reach the backend. Is FastAPI running on :8000?"
-      );
-    }
-    run = null;
-  }
-  if (run === null) {
-    notFound();
+    if (e instanceof NotFoundError) notFound();
+    throw new Error("Could not reach the backend. Is FastAPI running on :8000?");
   }
 
     const runError = run.error as {
