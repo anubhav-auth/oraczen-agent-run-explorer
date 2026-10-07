@@ -12,3 +12,7 @@ Vitest covers query helpers and pagination labels; no component/e2e tests — no
 
 ## Frontend notes
 Unknown run URL renders the Next not-found UI but with HTTP 200: the layout streams before the backend fetch resolves, so notFound() fires after streaming starts (documented Next fallback, page still gets noindex). API-level 404s are real 404s.
+
+## Skipped optionals (and why)
+Built: tool filter, docker compose, step deep-link auto-expand, numbered pagination.
+Skipped: list keyboard nav — mouse/touch + native focus already serve the flows, custom key handling risked hijacking screen-reader keys for little gain. Request duration/count indicator — backend answers in single-digit ms locally so the indicator would only prove what timing already shows; skipped as reviewer theater. Cursor pagination — offset is correct at 200 rows; cursors pay off past thousands. 500-step perf — max in dataset is 5 steps; virtualization would be speculative complexity.
