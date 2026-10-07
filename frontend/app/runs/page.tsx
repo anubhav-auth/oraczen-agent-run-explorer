@@ -74,7 +74,7 @@ export default async function RunsPage({ searchParams }: { searchParams: Promise
               {body.items.map((r) => (
                 <tr key={r.id}>
                   <td><Link href={`/runs/${r.id}`}>{r.id}</Link></td>
-                  <td>{r.agent}</td><td>{r.status}</td><td>{r.started_at}</td>
+                  <td>{r.agent}</td><td><span className={`pill pill-${r.status}`}>{r.status}</span></td><td>{r.started_at}</td>
                   <td>{r.duration_ms ?? "—"}</td><td>{r.cost_usd ?? "unpriced"}</td>
                 </tr>
               ))}
@@ -85,12 +85,12 @@ export default async function RunsPage({ searchParams }: { searchParams: Promise
             {body.items.map((r) => (
               <div className="card" key={r.id}>
                 <Link href={`/runs/${r.id}`}>{r.id}</Link>
-                <p>{r.agent} · {r.status}</p>
+                <p>{r.agent} · <span className={`pill pill-${r.status}`}>{r.status}</span></p>
                 <p>{r.started_at} · {r.duration_ms ?? "—"}ms · {r.cost_usd ?? "unpriced"}</p>
               </div>
             ))}
           </div>
-          <nav aria-label="Runs pagination">
+          <nav aria-label="Runs pagination" className="pager">
             {page > 1 && <Link href={mkHref(page - 1)}>← Prev</Link>}{" "}
             {(page * pageSize < body.total) && <Link href={mkHref(page + 1)}>Next →</Link>}
           </nav>

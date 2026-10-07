@@ -71,15 +71,15 @@ export default async function DashboardPage() {
     <div>
       <h1>Dashboard</h1>
       <div className="stat-grid">
-        <div>
+        <div className="stat">
           <div>total runs</div>
           <div>{stats.total}</div>
         </div>
-        <div>
+        <div className="stat">
           <div>success (excl. running)</div>
           <div>{(stats.success_rate * 100).toFixed(1)}%</div>
         </div>
-        <div>
+        <div className="stat">
           <div>median ms</div>
           <div>
             {stats.median_duration_ms == null
@@ -87,7 +87,7 @@ export default async function DashboardPage() {
               : `${stats.median_duration_ms} ms`}
           </div>
         </div>
-        <div>
+        <div className="stat">
           <div>p95 ms</div>
           <div>
             {stats.p95_duration_ms == null
