@@ -31,7 +31,7 @@ export default async function RunDetailPage({
         <Link href="/runs">Back to runs</Link>
         <h1>{run.id}</h1>
 
-        <dl>
+        <dl className="meta">
           <dt>Agent</dt>
           <dd>
             {run.agent} / {run.model}
@@ -55,7 +55,7 @@ export default async function RunDetailPage({
         </dl>
 
         {run.error && runError ? (
-          <div role="alert">
+          <div role="alert" className="error">
             <div>Type: {String(runError.type ?? "unknown")}</div>
             <div>Message: {String(runError.message ?? "")}</div>
             <div>Step: {String(runError.step_index ?? "")}</div>
