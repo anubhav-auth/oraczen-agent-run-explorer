@@ -26,7 +26,7 @@ def _parse_dt(s: str | None, *, end_of_day: bool = False) -> datetime | None:
             dt = dt.replace(hour=23, minute=59, second=59, microsecond=999999)
         dt = dt.replace(tzinfo=timezone.utc)
     return dt
-def _filter(status, agent, started_from, started_to, q):
+def _filter(status, agent, started_from, started_to, q, tools=None):
     try:
         sf = _parse_dt(started_from)
         st = _parse_dt(started_to, end_of_day=True)
@@ -46,6 +46,8 @@ def _filter(status, agent, started_from, started_to, q):
             continue
         if qn and qn not in (r.prompt or "").strip().lower():
             continue
+        if tools and not any(s.tool in tools for s in r.steps):
+            continue
         out.append(r)
     return out
 def _sort(runs, sort, order):
@@ -58,8 +60,8 @@ def _sort(runs, sort, order):
     vals = sorted(vals, key=lambda r: getattr(r, key), reverse=reverse)
     return vals + nulls
 @app.get("/api/runs", response_model=RunsPage)
-def list_runs(page: int = Query(default=1, ge=1), page_size: int = Query(default=25, ge=1, le=100), status: list[str] | None = Query(default=None), agent: list[str] | None = Query(default=None), started_from: str | None = None, started_to: str | None = None, q: str | None = None, sort: str = Query(default="started_at", pattern="^(started_at|duration_ms|cost_usd)$"), order: str = Query(default="desc", pattern="^(asc|desc)$")):
-    filtered = _filter(status, agent, started_from, started_to, q)
+def list_runs(page: int = Query(default=1, ge=1), page_size: int = Query(default=25, ge=1, le=100), status: list[str] | None = Query(default=None), agent: list[str] | None = Query(default=None), started_from: str | None = None, started_to: str | None = None, q: str | None = None, tool: list[str] | None = Query(default=None), sort: str = Query(default="started_at", pattern="^(started_at|duration_ms|cost_usd)$"), order: str = Query(default="desc", pattern="^(asc|desc)$")):
+    filtered = _filter(status, agent, started_from, started_to, q, tool)
     ordered = _sort(filtered, sort, order)
     total = len(ordered)
     start = (page - 1) * page_size

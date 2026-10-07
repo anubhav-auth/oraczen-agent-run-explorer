@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getRun, NotFoundError } from "../../../lib/api";
 import ExplainButton from "./ExplainButton";
+import StepsList from "./StepsList";
 
 export const dynamic = "force-dynamic";
 
@@ -69,21 +70,7 @@ export default async function RunDetailPage({
         {run.steps.length === 0 ? (
           <p>This run has no steps.</p>
         ) : (
-          run.steps.map((step) => (
-            <details key={step.index} id={`step-${step.index}`}>
-              <summary>
-                {step.index}: {step.name} · {step.tool} · {step.status} ·{" "}
-                {step.duration_ms ?? "—"}ms · {step.tokens.input}/
-                {step.tokens.output} tok
-              </summary>
-              <div>
-                <h3>Input</h3>
-                <pre>{step.input}</pre>
-                <h3>Output</h3>
-                <pre>{step.output ?? "—"}</pre>
-              </div>
-            </details>
-          ))
+          <StepsList steps={run.steps} />
         )}
       </div>
     );

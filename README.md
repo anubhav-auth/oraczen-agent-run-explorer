@@ -43,3 +43,10 @@ See `DECISIONS.md` (null costs, running runs, duplicate `run_0031`, global stats
 
 - Dataset: 201 lines in `data/runs.jsonl`, 200 unique runs after dedupe. Deliberately messy; loader warns on stderr and never silently drops records.
 - Design specs and plans: `docs/superpowers/specs/`, `docs/superpowers/plans/`.
+
+## Docker
+
+Prereq: docker.
+Boot: `docker compose up --build`.
+UI http://localhost:3000/runs, API http://localhost:8000/api/stats.
+Stop: `docker compose down`.

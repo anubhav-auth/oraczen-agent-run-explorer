@@ -43,3 +43,19 @@ def test_date_only_range_behaves():
         assert "2026-08-01" <= item["started_at"][:10] <= "2026-08-10"
     bad = client.get("/api/runs", params={"started_from": "garbage"})
     assert bad.status_code == 422
+
+
+def test_tool_filter_matches_step_tool():
+    r = client.get("/api/runs", params=[("tool", "vector_search")])
+    assert r.status_code == 200
+    body = r.json()
+    assert body["total"] > 0
+    # list items exclude steps, so verify via detail
+    first_id = body["items"][0]["id"]
+    assert "steps" not in body["items"][0]
+    d = client.get(f"/api/runs/{first_id}")
+    assert d.status_code == 200
+    assert any(s["tool"] == "vector_search" for s in d.json()["steps"])
+    unknown = client.get("/api/runs", params=[("tool", "zzz")])
+    assert unknown.status_code == 200
+    assert unknown.json()["total"] == 0
