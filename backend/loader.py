@@ -31,6 +31,8 @@ def load_runs(path: str) -> tuple[list[RunDetail], dict]:
                 continue
             if isinstance(run.duration_ms, (int, float)) and run.duration_ms < 0:
                 print(f"warn: negative duration {rid}={run.duration_ms}", file=sys.stderr)
+            if run.cost_usd is None:
+                print(f"warn: null cost {rid}", file=sys.stderr)
             by_id[rid] = run
     runs = list(by_id.values())
     meta = {"duplicate_ids": sorted(duplicate_ids), "skipped_lines": skipped_lines, "excluded_negative": sorted(r.id for r in runs if isinstance(r.duration_ms, (int, float)) and r.duration_ms < 0)}
