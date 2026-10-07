@@ -3,13 +3,14 @@ BACKEND_PORT ?= 8000
 FRONTEND_PORT ?= 3000
 RUNS_PATH ?= data/runs.jsonl
 
-.PHONY: help install backend frontend dev stop test build
+.PHONY: help install backend frontend dev prod stop test build
 
 help:
 	@echo "  make install  - pip + npm install"
-	@echo "  make dev      - start backend + frontend, prints test links (Ctrl-C stops both)"
+	@echo "  make dev      - start backend + frontend dev servers, prints test links (Ctrl-C stops both)"
+	@echo "  make prod     - build frontend, start backend + production frontend (fast page switches)"
 	@echo "  make backend  - FastAPI only (port $(BACKEND_PORT))"
-	@echo "  make frontend - Next.js only (port $(FRONTEND_PORT))"
+	@echo "  make frontend - Next.js dev only (port $(FRONTEND_PORT))"
 	@echo "  make test     - backend + frontend tests"
 	@echo "  make build    - frontend production build"
 	@echo "  make stop     - kill dev servers"
@@ -33,6 +34,17 @@ dev:
 	trap 'kill 0' INT TERM; \
 	RUNS_PATH=$(RUNS_PATH) python -m uvicorn backend.app:app --port $(BACKEND_PORT) & \
 	npm run dev --prefix frontend -- --port $(FRONTEND_PORT) & \
+	wait
+
+prod: build
+	@echo ""
+	@echo "  backend:  http://localhost:$(BACKEND_PORT)/api/stats  (docs: http://localhost:$(BACKEND_PORT)/docs)"
+	@echo "  runs:     http://localhost:$(FRONTEND_PORT)/runs"
+	@echo "  dashboard: http://localhost:$(FRONTEND_PORT)/dashboard"
+	@echo ""
+	trap 'kill 0' INT TERM; \
+	RUNS_PATH=$(RUNS_PATH) python -m uvicorn backend.app:app --port $(BACKEND_PORT) & \
+	npm run start --prefix frontend -- --port $(FRONTEND_PORT) & \
 	wait
 
 stop:
