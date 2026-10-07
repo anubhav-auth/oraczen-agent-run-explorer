@@ -64,3 +64,13 @@ from backend.stats import compute_stats
 @app.get("/api/stats")
 def get_stats():
     return compute_stats(_RUNS, _META)
+from fastapi.responses import StreamingResponse
+from backend.explain import MockExplainProvider
+@app.post("/api/runs/{run_id}/explain")
+async def explain_run(run_id: str):
+    run = _BY_ID.get(run_id)
+    if run is None:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail=f"run {run_id} not found")
+    provider = MockExplainProvider()
+    return StreamingResponse(provider.stream(run), media_type="text/plain")
