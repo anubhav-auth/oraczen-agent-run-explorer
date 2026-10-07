@@ -91,7 +91,14 @@ export default async function RunsPage({ searchParams }: { searchParams: Promise
             ))}
           </div>
           <nav aria-label="Runs pagination" className="pager">
-            {page > 1 && <Link href={mkHref(page - 1)}>← Prev</Link>}{" "}
+            {page > 1 && <Link href={mkHref(page - 1)}>← Prev</Link>}
+            {Array.from({ length: Math.ceil(body.total / pageSize) }, (_, i) => i + 1).map((p) =>
+              p === page ? (
+                <span key={p} aria-current="page" className="page-current">{p}</span>
+              ) : (
+                <Link key={p} href={mkHref(p)}>{p}</Link>
+              )
+            )}
             {(page * pageSize < body.total) && <Link href={mkHref(page + 1)}>Next →</Link>}
           </nav>
         </>
