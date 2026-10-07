@@ -37,7 +37,7 @@ dev:
 
 stop:
 	-pkill -f '[u]vicorn backend.app:app --port'
-	-pkill -f '[n]ext-server.*$(FRONTEND_PORT)'
+	-pkill -f '[n]ext-server'
 
 test:
 	pytest backend/tests -q
