@@ -6,3 +6,9 @@
 Negative duration run_0064 stored as-is, excluded from median/p95, listed in `meta.excluded_negative`.
 p95 = nearest-rank ceil(0.95*n)-1; median over >= 0 durations (n=190): 23593.0 / 41530.
 20M rows: Postgres + (agent,status,started_at) indexes, server-side filter, pre-aggregated stats, cursor pagination.
+
+## Frontend tests
+Vitest covers query helpers and pagination labels; no component/e2e tests — no backend fixture harness in CI and the risky logic (filter composition, stats math) already lives in tested backend code. Next step with another day: Playwright smoke test /runs -> detail -> explain.
+
+## Frontend notes
+Unknown run URL renders the Next not-found UI but with HTTP 200: the layout streams before the backend fetch resolves, so notFound() fires after streaming starts (documented Next fallback, page still gets noindex). API-level 404s are real 404s.
