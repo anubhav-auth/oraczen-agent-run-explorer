@@ -4,6 +4,7 @@ import { buildRunsQuery, pageLabel } from "@/lib/query";
 
 const STATUSES = ["succeeded", "failed", "cancelled", "running"];
 const AGENTS = ["email-drafter", "contract-reviewer", "support-router", "kpi-analyst", "invoice-extractor"];
+const TOOLS = ["llm", "sql", "http", "vector_search", "none"];
 
 type SP = { [k: string]: string | string[] | undefined };
 const asArray = (v: string | string[] | undefined): string[] =>
@@ -13,6 +14,7 @@ export default async function RunsPage({ searchParams }: { searchParams: Promise
   const sp = await searchParams;
   const status = asArray(sp.status);
   const agent = asArray(sp.agent);
+  const tool = asArray(sp.tool);
   const q = typeof sp.q === "string" ? sp.q : "";
   const started_from = typeof sp.started_from === "string" ? sp.started_from : "";
   const started_to = typeof sp.started_to === "string" ? sp.started_to : "";
@@ -23,7 +25,7 @@ export default async function RunsPage({ searchParams }: { searchParams: Promise
   const sort = SORTS.includes(sortParam) ? sortParam : "started_at";
   const order = ORDERS.includes(orderParam) ? orderParam : "desc";
   const page = Math.max(1, parseInt(typeof sp.page === "string" ? sp.page : "1", 10) || 1);
-  const query = buildRunsQuery({ status, agent, started_from, started_to, q, sort, order, page: String(page) });
+  const query = buildRunsQuery({ status, agent, tool, started_from, started_to, q, sort, order, page: String(page) });
   let body: Awaited<ReturnType<typeof getRuns>>;
   try {
     body = await getRuns(query);
@@ -32,7 +34,7 @@ export default async function RunsPage({ searchParams }: { searchParams: Promise
     throw new Error(`Could not load runs (${msg}). Is FastAPI running on :8000?`);
   }
   const pageSize = body.page_size;
-  const mkHref = (p: number) => `/runs?${buildRunsQuery({ status, agent, started_from, started_to, q, sort, order, page: String(p) })}`;
+  const mkHref = (p: number) => `/runs?${buildRunsQuery({ status, agent, tool, started_from, started_to, q, sort, order, page: String(p) })}`;
   return (
     <div>
       <h1>Runs</h1>
@@ -47,6 +49,12 @@ export default async function RunsPage({ searchParams }: { searchParams: Promise
           <legend>Agent</legend>
           {AGENTS.map((a) => (
             <label key={a}><input type="checkbox" name="agent" value={a} defaultChecked={agent.includes(a)} /> {a}</label>
+          ))}
+        </fieldset>
+        <fieldset>
+          <legend>Tool</legend>
+          {TOOLS.map((t) => (
+            <label key={t}><input type="checkbox" name="tool" value={t} defaultChecked={tool.includes(t)} /> {t}</label>
           ))}
         </fieldset>
         <label>Search <input type="search" name="q" defaultValue={q} placeholder="prompt text" /></label>
