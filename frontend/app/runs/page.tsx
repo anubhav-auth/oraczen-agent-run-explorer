@@ -27,8 +27,9 @@ export default async function RunsPage({ searchParams }: { searchParams: Promise
   let body: Awaited<ReturnType<typeof getRuns>>;
   try {
     body = await getRuns(query);
-  } catch {
-    throw new Error("Could not reach the backend. Is FastAPI running on :8000?");
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    throw new Error(`Could not load runs (${msg}). Is FastAPI running on :8000?`);
   }
   const pageSize = body.page_size;
   const mkHref = (p: number) => `/runs?${buildRunsQuery({ status, agent, started_from, started_to, q, sort, order, page: String(p) })}`;

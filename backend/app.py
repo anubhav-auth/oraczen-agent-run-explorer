@@ -1,6 +1,6 @@
 from __future__ import annotations
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
@@ -14,14 +14,22 @@ app = FastAPI(title="Agent Run Explorer")
 app.add_middleware(CORSMiddleware, allow_origins=[FRONTEND_ORIGIN], allow_methods=["*"], allow_headers=["*"])
 _RUNS, _META = load_runs(RUNS_PATH)
 _BY_ID = {r.id: r for r in _RUNS}
-def _parse_dt(s: str | None) -> datetime | None:
+def _parse_dt(s: str | None, *, end_of_day: bool = False) -> datetime | None:
     if not s:
         return None
-    return datetime.fromisoformat(s.replace("Z", "+00:00"))
+    s = s.strip()
+    dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+    if dt.tzinfo is None:
+        # Naive input (e.g. date-only "2026-08-01" from <input type="date">):
+        # assume UTC so it never meets an aware timestamp unarmed.
+        if end_of_day and len(s) == 10:  # pure YYYY-MM-DD upper bound
+            dt = dt.replace(hour=23, minute=59, second=59, microsecond=999999)
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt
 def _filter(status, agent, started_from, started_to, q):
     try:
         sf = _parse_dt(started_from)
-        st = _parse_dt(started_to)
+        st = _parse_dt(started_to, end_of_day=True)
     except ValueError:
         raise HTTPException(status_code=422, detail="invalid date format, expected ISO 8601")
     qn = q.strip().lower() if q else None
