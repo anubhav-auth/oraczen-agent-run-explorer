@@ -32,8 +32,9 @@ make dev
 Terminal 1 — backend (port 8000):
 
 ```bash
-pip install -r backend/requirements.txt
-RUNS_PATH=data/runs.jsonl python -m uvicorn backend.app:app --port 8000
+python -m venv .venv
+.venv/bin/pip install -r backend/requirements.txt
+RUNS_PATH=data/runs.jsonl .venv/bin/python -m uvicorn backend.app:app --port 8000
 ```
 
 Terminal 2 — frontend (port 3000):
