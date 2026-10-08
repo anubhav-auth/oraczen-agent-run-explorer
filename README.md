@@ -48,7 +48,7 @@ Open http://localhost:3000/runs. Dashboard at http://localhost:3000/dashboard.
 
 ## Env
 
-See `.env.example`. Backend: `RUNS_PATH`, `EXPLAIN_PROVIDER` (mock), `EXPLAIN_DELAY_MS`, `PORT`, `FRONTEND_ORIGIN`. Frontend: `API_URL` (server fetch), `NEXT_PUBLIC_API_URL` (browser explain POST). Defaults work locally with no keys.
+See `.env.example`. Backend: `RUNS_PATH`, `EXPLAIN_PROVIDER` (mock), `EXPLAIN_DELAY_MS`, `PORT`, `FRONTEND_ORIGIN`. Frontend: `API_URL` (read by the server at request time), `NEXT_PUBLIC_API_URL` (baked in at build time for the browser Explain button — rebuild after changing it). Defaults work locally with no keys.
 
 ## Tests
 
