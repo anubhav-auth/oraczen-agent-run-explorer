@@ -13,6 +13,9 @@ Vitest covers query helpers and pagination labels; no component/e2e tests — no
 ## Frontend notes
 Unknown run URL renders the Next not-found UI but with HTTP 200: the layout streams before the backend fetch resolves, so notFound() fires after streaming starts (documented Next fallback, page still gets noindex). API-level 404s are real 404s.
 
+## Why two API URLs
+`API_URL` serves server components (Node-side); `NEXT_PUBLIC_API_URL` serves the Explain button in the browser, since Next only inlines `NEXT_PUBLIC_*` vars into client JS — a plain var would be `undefined` there and every Explain click would fail. Strictly, one var (the public one, readable server-side too) would cover both sides today since the URL isn't secret. Kept the split anyway: server-only config stays out of the browser bundle by construction, so a future internal URL or secret can't leak through a copy-paste.
+
 ## Why the UI is plain
 The brief says visual polish is not scored but usability is, so every styling choice buys function: plain CSS with zero UI dependencies (nothing to install, nothing to break on a reviewer's machine), system font stack, no animations (nothing to distract, nothing to honor reduced-motion for), status pills as the only color — always paired with the status word itself, never color-alone. Server-rendered pages keep it fast on phones, which is where the responsive table-to-cards switch matters most.
 
