@@ -63,22 +63,37 @@ export const API_URL =
 
 export class NotFoundError extends Error {}
 
+// Retry transport-level failures (DNS race, backend still waking) but never
+// HTTP error statuses — a 404/422/500 from the backend is a real answer.
+async function fetchRetry(url: string, attempts = 3): Promise<Response> {
+  let last: unknown = null;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fetch(url, { cache: "no-store" });
+    } catch (e) {
+      last = e;
+      await new Promise((r) => setTimeout(r, 400 * (i + 1)));
+    }
+  }
+  throw last;
+}
+
 export async function getRuns(query: string): Promise<RunsPage> {
   const qs = query ? (query.startsWith("?") ? query : `?${query}`) : "";
-  const res = await fetch(`${API_URL}/api/runs${qs}`, { cache: "no-store" });
+  const res = await fetchRetry(`${API_URL}/api/runs${qs}`);
   if (!res.ok) throw new Error(`failed to fetch runs: ${res.status}`);
   return (await res.json()) as RunsPage;
 }
 
 export async function getRun(id: string): Promise<RunDetail> {
-  const res = await fetch(`${API_URL}/api/runs/${id}`, { cache: "no-store" });
+  const res = await fetchRetry(`${API_URL}/api/runs/${id}`);
   if (res.status === 404) throw new NotFoundError(`run ${id} not found`);
   if (!res.ok) throw new Error(`failed to fetch run: ${res.status}`);
   return (await res.json()) as RunDetail;
 }
 
 export async function getStats(): Promise<Stats> {
-  const res = await fetch(`${API_URL}/api/stats`, { cache: "no-store" });
+  const res = await fetchRetry(`${API_URL}/api/stats`);
   if (!res.ok) throw new Error(`failed to fetch stats: ${res.status}`);
   return (await res.json()) as Stats;
 }
