@@ -58,8 +58,11 @@ export interface Stats {
   meta: Record<string, unknown>;
 }
 
-export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? process.env.API_URL ?? "http://localhost:8000";
+// Server-side only: plain process.env is read at REQUEST time, never inlined
+// at build. Do NOT add NEXT_PUBLIC_* here — Next replaces those with their
+// build-time value at compile time, which would freeze the URL and ignore
+// the runtime environment (this broke docker-compose: localhost baked in).
+export const API_URL = process.env.API_URL ?? "http://localhost:8000";
 
 export class NotFoundError extends Error {}
 
