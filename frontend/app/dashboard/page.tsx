@@ -111,6 +111,24 @@ export default async function DashboardPage() {
       />
       <h2>Cost by agent</h2>
       <Bars data={costByAgent} format={(v) => `$${v.toFixed(2)}`} label="Cost by agent" />
+      <h2>Data quality</h2>
+      <ul>
+        {((stats.meta as { duplicate_ids?: string[] }).duplicate_ids ?? []).length > 0 && (
+          <li>
+            Duplicate {((stats.meta as { duplicate_ids?: string[] }).duplicate_ids ?? []).length === 1 ? "id" : "ids"}{" "}
+            {((stats.meta as { duplicate_ids?: string[] }).duplicate_ids ?? []).join(", ")}: kept the last record, see API meta.
+          </li>
+        )}
+        {((stats.meta as { excluded_negative?: string[] }).excluded_negative ?? []).length > 0 && (
+          <li>
+            {((stats.meta as { excluded_negative?: string[] }).excluded_negative ?? []).join(", ")} has a negative duration: kept as-is,
+            excluded from median/p95.
+          </li>
+        )}
+        {stats.unpriced_count > 0 && (
+          <li>{stats.unpriced_count} unpriced runs excluded from cost totals.</li>
+        )}
+      </ul>
     </div>
   );
 }

@@ -43,7 +43,12 @@ export default async function RunDetailPage({
           <dt>Started</dt>
           <dd>{run.started_at}</dd>
           <dt>Duration</dt>
-          <dd>{run.duration_ms ?? "—"} ms</dd>
+          <dd>
+            {run.duration_ms ?? "—"} ms
+            {typeof run.duration_ms === "number" && run.duration_ms < 0 && (
+              <> — negative: kept as-is, excluded from stats</>
+            )}
+          </dd>
           <dt>Tokens</dt>
           <dd>
             {run.input_tokens} in / {run.output_tokens} out

@@ -13,6 +13,9 @@ Vitest covers query helpers and pagination labels; no component/e2e tests — no
 ## Frontend notes
 Unknown run URL renders the Next not-found UI but with HTTP 200: the layout streams before the backend fetch resolves, so notFound() fires after streaming starts (documented Next fallback, page still gets noindex). API-level 404s are real 404s.
 
+## Why the UI is plain
+The brief says visual polish is not scored but usability is, so every styling choice buys function: plain CSS with zero UI dependencies (nothing to install, nothing to break on a reviewer's machine), system font stack, no animations (nothing to distract, nothing to honor reduced-motion for), status pills as the only color — always paired with the status word itself, never color-alone. Server-rendered pages keep it fast on phones, which is where the responsive table-to-cards switch matters most.
+
 ## Skipped optionals (and why)
 Built: tool filter, docker compose, step deep-link auto-expand, numbered pagination.
 Skipped: list keyboard nav — mouse/touch + native focus already serve the flows, custom key handling risked hijacking screen-reader keys for little gain. Request duration/count indicator — backend answers in single-digit ms locally so the indicator would only prove what timing already shows; skipped as reviewer theater. Cursor pagination — offset is correct at 200 rows; cursors pay off past thousands. 500-step perf — max in dataset is 5 steps; virtualization would be speculative complexity.
