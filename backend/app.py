@@ -10,10 +10,12 @@ from backend.stats import compute_stats
 from backend.explain import MockExplainProvider
 RUNS_PATH = os.environ.get("RUNS_PATH", "data/runs.jsonl")
 FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:3000")
+ALLOW_ORIGINS = [o.strip() for o in FRONTEND_ORIGIN.split(",") if o.strip()]
 app = FastAPI(title="Agent Run Explorer")
-app.add_middleware(CORSMiddleware, allow_origins=[FRONTEND_ORIGIN], allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(CORSMiddleware, allow_origins=ALLOW_ORIGINS, allow_methods=["*"], allow_headers=["*"])
 _RUNS, _META = load_runs(RUNS_PATH)
 _BY_ID = {r.id: r for r in _RUNS}
+
 def _parse_dt(s: str | None, *, end_of_day: bool = False) -> datetime | None:
     if not s:
         return None
@@ -26,6 +28,7 @@ def _parse_dt(s: str | None, *, end_of_day: bool = False) -> datetime | None:
             dt = dt.replace(hour=23, minute=59, second=59, microsecond=999999)
         dt = dt.replace(tzinfo=timezone.utc)
     return dt
+
 def _filter(status, agent, started_from, started_to, q, tools=None):
     try:
         sf = _parse_dt(started_from)
@@ -50,6 +53,7 @@ def _filter(status, agent, started_from, started_to, q, tools=None):
             continue
         out.append(r)
     return out
+
 def _sort(runs, sort, order):
     reverse = order == "desc"
     if sort == "started_at":
@@ -59,6 +63,7 @@ def _sort(runs, sort, order):
     vals = [r for r in runs if getattr(r, key) is not None]
     vals = sorted(vals, key=lambda r: getattr(r, key), reverse=reverse)
     return vals + nulls
+    
 @app.get("/api/runs", response_model=RunsPage)
 def list_runs(page: int = Query(default=1, ge=1), page_size: int = Query(default=25, ge=1, le=100), status: list[str] | None = Query(default=None), agent: list[str] | None = Query(default=None), started_from: str | None = None, started_to: str | None = None, q: str | None = None, tool: list[str] | None = Query(default=None), sort: str = Query(default="started_at", pattern="^(started_at|duration_ms|cost_usd)$"), order: str = Query(default="desc", pattern="^(asc|desc)$")):
     filtered = _filter(status, agent, started_from, started_to, q, tool)
